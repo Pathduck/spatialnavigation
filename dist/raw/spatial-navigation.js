@@ -1814,6 +1814,39 @@ function attribute(event, cursor) {
 }
 exports.attribute = attribute;
 function key2command(event) {
+
+  // ===============================================================================================================================
+  // Adding a hotkey for extension disable (Nomadic 07.03.2021 )
+  // ===============================================================================================================================
+  // UnComment the line below to have enable/disable be global to the window. Leave it commented to have the setting be tab specific
+  // let localStorage = window.localStorage;
+
+  // check if the keys should be enabled or disabled
+  let isSpatialNavEnabled = localStorage.getItem("isEnabled");
+  // make value boolean, localStorage only stores strings
+  isSpatialNavEnabled = isSpatialNavEnabled === "true" ? true : isSpatialNavEnabled === "false" ? false : isSpatialNavEnabled;
+
+  // initialize stored state if not set
+  if (isSpatialNavEnabled === null) {
+    isSpatialNavEnabled = true;
+    localStorage.setItem("isEnabled", true);
+  }
+
+  // check to see if the key combo is the enable/disable command ( Ctrl + Shift + X )
+  if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "x") {
+    // flip the value in storage
+    isSpatialNavEnabled = !isSpatialNavEnabled;
+    localStorage.setItem("isEnabled", isSpatialNavEnabled);
+  }
+
+  // prevent other keys when disabled
+  if (!isSpatialNavEnabled) return 11;
+
+  // ===============================================================================================================================
+  // END CHANGED SECTION
+  // ===============================================================================================================================
+
+  // ... change or leave any logic below however you need
     if (event.altKey || event.metaKey) {
         return 11 /* INVALID */;
     }
