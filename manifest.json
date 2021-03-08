@@ -1,0 +1,18 @@
+{
+   "content_scripts": [ {
+      "js": [ "dist/raw/spatial-navigation.js" ],
+      "matches": [ "\u003Call_urls>" ],
+      "run_at": "document_end"
+   } ],
+   "icons": {
+      "32": "dist/raw/icon.png"
+   },
+   "description": "Smart spatial navigation with key map to links. Bind WASDE and Q keys.",
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAx6DSv4W8kxjs8MIUus8LpnlmyrvwElLfsqUjGBzTpSe0iNNxTrrYR/PtgUHyJOlNxUadmhbg19wePB+b3ly0NE0HwTjJ/kFMVNEkl6wk1jJ7CedIHjAzbFO5oHgcSt8j4hrxh4KopFgAydwSqBT8ssPHFOBfuAl1+3o4fGA06z0wwbi/KUSSFuZFrM3tdv8qkpeSwnFvSaV5aZnF0Y+mEuiYhGBGfFWIpFwZDwTeLxmKJtlt2RD5YghqodfwG4dAIMknEC63OkzA7yMB3ZdEwysm9kAtCwfQdBRP1YuRE7H+lZR4cAspnddFKOnEj+FIifDD8rkw8vqzN8FroUcHRQIDAQAB",
+   "manifest_version": 2,
+   "name": "Spatial Navigation",
+   "permissions": [ "\u003Call_urls>" ],
+   "short_name": "spatial-navigation",
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "0.4.7"
+}
