@@ -1,7 +1,8 @@
 {
-   "content_scripts": [ {
-      "js": [ "dist/raw/spatial-navigation.js" ],
-      "matches": [ "\u003Call_urls>" ],
+  "content_scripts": [
+    {
+      "js": ["js/spatial-navigation.js"],
+      "matches": ["\u003Call_urls>"],
       "run_at": "document_end"
     }
   ],
