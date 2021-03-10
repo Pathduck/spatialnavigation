@@ -15,4 +15,5 @@
    "short_name": "spatial-navigation",
    "update_url": "https://clients2.google.com/service/update2/crx",
    "version": "0.4.7"
+  "options_page": "options.html"
 }
