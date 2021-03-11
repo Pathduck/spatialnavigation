@@ -1801,7 +1801,56 @@ var MODULE;
 })(MODULE || (MODULE = {}));
 }("lazychain", "0.3.0-alpha.23");
 
-},{}],2:[function(require,module,exports){
+},{}],
+// ===============================================================================================================================
+13:[function(require,module,exports){
+"use strict";
+var KEYS_DOWN = new Set();
+exports.KEYS_DOWN = KEYS_DOWN;
+let HOTKEY_CODES = {};
+exports.HOTKEY_CODES = HOTKEY_CODES;
+
+function getSettings(callback) {
+  chrome.storage.local.get(["extension-settings"], function (result) {
+    let settingsFull = result["extension-settings"];
+    localStorage.setItem("HOTKEY_CODES", JSON.stringify(settingsFull.hotkeys.codes));
+      // console.log(HOTKEY_CODES);
+
+    if (callback instanceof Function) {
+      callback();
+    }
+  });
+}
+exports.getSettings = getSettings;
+
+function startKeyPressListeners() {
+  window.addEventListener("keyup", keyRelease);
+}
+exports.startKeyPressListeners = startKeyPressListeners;
+
+function keyRelease(e) {
+  KEYS_DOWN.delete(e.key.toLowerCase());
+}
+exports.keyRelease = keyRelease;
+
+// checking equality of set values to array values, not case sensitive
+function setArrayMatch(set1, array1) {
+  // Check if the map and array have the same number of entries
+  if (set1.size !== array1.length) return false;
+  // Check if all items exist and are in the same order
+  let i = 0;
+  for (let element of set1) {
+    if (element.toLowerCase() !== array1[i].toLowerCase()) return false;
+    i++;
+  }
+  // Otherwise, return true
+  return true;
+}
+exports.setArrayMatch = setArrayMatch;
+
+},{}],
+// ===============================================================================================================================
+2:[function(require,module,exports){
 "use strict";
 exports.CURSOR_ID = 'spatialnavigation-cursor';
 exports.URLDISPLAY_ID = 'spatialnavigation-urldisplay';
@@ -1813,8 +1862,8 @@ function attribute(event, cursor) {
     };
 }
 exports.attribute = attribute;
-function key2command(event) {
 
+function key2command(event) {
   // ===============================================================================================================================
   // Adding a hotkey for extension disable (Nomadic 07.03.2021 )
   // ===============================================================================================================================
@@ -2321,6 +2370,7 @@ exports.store = STORE.create();
 var ANALYSIS = require('./analysis');
 //import MAP = require('./map');
 var LazyChain = require('lazychain');
+var HELPER_FUNCTIONS = require('helperFunctions');
 var views = [];
 function main() {
     if (document.readyState === "loading") {
@@ -2331,6 +2381,8 @@ function main() {
     }
     function register() {
         window.removeEventListener("DOMContentLoaded", register);
+        HELPER_FUNCTIONS.getSettings(console.log(localStorage.getItem("HOTKEY_CODES")));
+        HELPER_FUNCTIONS.startKeyPressListeners();
         CONTROLLER.Controller([window])
             .forEach(function (view) { return views.unshift(view); });
     }
@@ -2351,7 +2403,7 @@ function output(data) {
     VIEW.emit(data.entity, data.attribute);
 }
 
-},{"../controller/controller":3,"../store/store":10,"../view/view":12,"./analysis":7,"lazychain":1}],9:[function(require,module,exports){
+},{"../controller/controller":3,"../store/store":10,"../view/view":12,"./analysis":7,"lazychain":1,"helperFunctions":13}],9:[function(require,module,exports){
 "use strict";
 var state_ = 0 /* ENABLE */;
 function state(enable) {
@@ -2865,5 +2917,5 @@ function click(elem, shiftKey, ctrlKey) {
     }
 }
 
-},{"../attribute/attribute":2,"../controller/controller":3,"../entity/entity":5,"../model/model":8,"../state/module":9,"./map":11}]},{},[2,3,4,5,6,7,8,9,10,11,12]);
+},{"../attribute/attribute":2,"../controller/controller":3,"../entity/entity":5,"../model/model":8,"../state/module":9,"./map":11}]},{},[2,3,4,5,6,7,8,9,10,11,12,13]);
 }("spatial-navigation", "0.4.7");
