@@ -2,12 +2,15 @@ chrome.runtime.onInstalled.addListener(function () {
   let settings = {
     hotkeys: {
       codes: {
-        slower: ["F21"],
-        normal: ["F22"],
-        faster: ["F23"],
-        pause: ["k"],
-        "skip-back": ["ArrowLeft"],
-        "skip-forward": ["ArrowRight"],
+        navUp: ["w"],
+        navLeft: ["a"],
+        navDown: ["s"],
+        navRight: ["d"],
+        expand: ["e"],
+        quit: ["q"],
+        click: ["enter"],
+        shiftClick: ["shift", "enter"],
+        disableKeys: ["control", "shift", "x"],
       },
     },
   };
