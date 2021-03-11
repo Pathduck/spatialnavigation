@@ -6,7 +6,7 @@ chrome.runtime.onInstalled.addListener(function () {
         navLeft: ["a"],
         navDown: ["s"],
         navRight: ["d"],
-        expand: ["e"],
+        mapKeys: ["e"],
         quit: ["q"],
         click: ["enter"],
         shiftClick: ["shift", "enter"],
