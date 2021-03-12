@@ -1801,8 +1801,63 @@ var MODULE;
 })(MODULE || (MODULE = {}));
 }("lazychain", "0.3.0-alpha.23");
 
+},{}],13:[function(require,module,exports){
+"use strict";
+var KEYS_DOWN = new Set();
+var HOTKEY_CODES = {};
+
+function getSettings(callback) {
+  chrome.storage.local.get(["extension-settings"], function (result) {
+    let settingsFull = result["extension-settings"];
+    HOTKEY_CODES = settingsFull.hotkeys.codes;
+
+    if (callback instanceof Function) {
+      callback();
+    }
+  });
+}
+exports.getSettings = getSettings;
+
+function isHotkeyPressed(hotkeyID) {
+  return setArrayMatch(KEYS_DOWN, HOTKEY_CODES[hotkeyID]);
+}
+exports.isHotkeyPressed = isHotkeyPressed;
+
+// Functions for handling keys down
+// ------------------------------------------
+function startKeyUpListener() {
+  window.addEventListener("keyup", removeFromKeysDown);
+}
+exports.startKeyUpListener = startKeyUpListener;
+
+function removeFromKeysDown(e) {
+  KEYS_DOWN.delete(e.key.toLowerCase());
+}
+
+function addToKeysDown(e) {
+  KEYS_DOWN.add(e.key.toLowerCase());
+}
+exports.addToKeysDown = addToKeysDown;
+
+
+// checking equality of set values to array values, not case sensitive
+function setArrayMatch(set1, array1) {
+  // Check if the map and array have the same number of entries
+  if (set1.size !== array1.length) return false;
+  // Check if all items exist and are in the same order
+  let i = 0;
+  for (let element of set1) {
+    if (element.toLowerCase() !== array1[i].toLowerCase()) return false;
+    i++;
+  }
+  // Otherwise, return true
+  return true;
+}
+
 },{}],2:[function(require,module,exports){
 "use strict";
+var HELPER_FUNCTIONS = require('helperFunctions');
+
 exports.CURSOR_ID = 'spatialnavigation-cursor';
 exports.URLDISPLAY_ID = 'spatialnavigation-urldisplay';
 exports.MARKER_TAG = 'spatialnavigation-marker';
@@ -1813,8 +1868,9 @@ function attribute(event, cursor) {
     };
 }
 exports.attribute = attribute;
-function key2command(event) {
 
+function key2command(event) {
+  HELPER_FUNCTIONS.addToKeysDown(event);
   // ===============================================================================================================================
   // Adding a hotkey for extension disable (Nomadic 07.03.2021 )
   // ===============================================================================================================================
@@ -1832,68 +1888,44 @@ function key2command(event) {
     localStorage.setItem("isEnabled", true);
   }
 
-  // check to see if the key combo is the enable/disable command ( Ctrl + Shift + X )
-  if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "x") {
+  // check to see if the key combo is the enable/disable command
+  if (HELPER_FUNCTIONS.isHotkeyPressed("disableKeys")) {
     // flip the value in storage
     isSpatialNavEnabled = !isSpatialNavEnabled;
     localStorage.setItem("isEnabled", isSpatialNavEnabled);
   }
 
   // prevent other keys when disabled
-  if (!isSpatialNavEnabled) return 11;
+  if (!isSpatialNavEnabled) return 11; // INVALID
 
-  // ===============================================================================================================================
-  // END CHANGED SECTION
-  // ===============================================================================================================================
-
-  // ... change or leave any logic below however you need
-    if (event.altKey || event.metaKey) {
-        return 11 /* INVALID */;
-    }
-
-    if (event.shiftKey) {
-		switch (event.keyCode) {
-			case 13: // Enter
-			case 70: // F
-				return 9; // SHIFT+ENTER
-			default:
-				return 11;
-		}
-	}
-	else if (event.ctrlKey) {
-		switch (event.keyCode) {
-			case 13: // Enter
-			case 70: // F
-				return 7; // CTRL+ENTER
-			default:
-				return 11;
-		}
-	}
-	else {
-		switch (event.keyCode) {
-			case 81: // Q
-				return 10; // QUIT
-			case 69: // E
-				return 6; // EXPAND
-			case 87: // W
-				return 0; // UP
-			case 83: // S
-				return 2; // DOWN
-			case 65: // A
-				return 4; // LEFT
-			case 68: // D
-				return 5; // RIGHT
-			case 13: // Enter
-			case 70: // F
-				return 8; // ENTER
-			default:
-				return 11 /* INVALID */;
-		}
-	}
+  // check to see if key combo matches an action
+  if(HELPER_FUNCTIONS.isHotkeyPressed("navUp")) {
+      return 0;
+  } else if(HELPER_FUNCTIONS.isHotkeyPressed("navLeft")) {
+      return 4;
+  } else if(HELPER_FUNCTIONS.isHotkeyPressed("navDown")) {
+      return 2;
+  } else if(HELPER_FUNCTIONS.isHotkeyPressed("navRight")) {
+      return 5;
+  } else if(HELPER_FUNCTIONS.isHotkeyPressed("expand")) {
+      return 6;
+  } else if(HELPER_FUNCTIONS.isHotkeyPressed("contract")) {
+      return 7;
+  } else if(HELPER_FUNCTIONS.isHotkeyPressed("quit")) {
+      return 10;
+  } else if(HELPER_FUNCTIONS.isHotkeyPressed("click")) {
+      return 8;
+  } else if(HELPER_FUNCTIONS.isHotkeyPressed("shiftClick")) {
+      return 9;
+  } else if(HELPER_FUNCTIONS.isHotkeyPressed("controlClick")) {
+      return 12;
+  } else {
+      return 11; // INVALID
+  }
 }
 exports.key2command = key2command;
 
-},{}],3:[function(require,module,exports){
+},{"helperFunctions":13}],3:[function(require,module,exports){
 "use strict";
 var MODEL = require('../model/model');
 var VIEW = require('../view/view');
@@ -2321,6 +2353,7 @@ exports.store = STORE.create();
 var ANALYSIS = require('./analysis');
 //import MAP = require('./map');
 var LazyChain = require('lazychain');
+var HELPER_FUNCTIONS = require('helperFunctions');
 var views = [];
 function main() {
     if (document.readyState === "loading") {
@@ -2331,6 +2364,8 @@ function main() {
     }
     function register() {
         window.removeEventListener("DOMContentLoaded", register);
+        HELPER_FUNCTIONS.getSettings();
+        HELPER_FUNCTIONS.startKeyUpListener();
         CONTROLLER.Controller([window])
             .forEach(function (view) { return views.unshift(view); });
     }
@@ -2351,7 +2386,7 @@ function output(data) {
     VIEW.emit(data.entity, data.attribute);
 }
 
-},{"../controller/controller":3,"../store/store":10,"../view/view":12,"./analysis":7,"lazychain":1}],9:[function(require,module,exports){
+},{"../controller/controller":3,"../store/store":10,"../view/view":12,"./analysis":7,"lazychain":1,"helperFunctions":13}],9:[function(require,module,exports){
 "use strict";
 var state_ = 0 /* ENABLE */;
 function state(enable) {
@@ -2465,15 +2500,17 @@ function map(targets, callback, reverse, stack) {
     function handler(event) {
         event.preventDefault();
         event.stopImmediatePropagation();
-        var key = ja2en(event.target.value), shiftKey = key === key.toUpperCase(), target = table[key.toLowerCase()];
+        // TODO: find way to detect Ctrl key
+        var key = ja2en(event.target.value), shiftKey = key === key.toUpperCase(), target = table[key.toLowerCase()], controlKey = false;
         observer.removeEventListener('keydown', handler);
         observer.removeEventListener('blur', handler);
         container.remove();
         if (key && target) {
-            callback(target, shiftKey);
+            callback(target, shiftKey, controlKey);
         }
         observer.blur();
         observer.remove();
+        // TODO: Decouple from E key
         switch (key) {
             case !reverse ? 'e' : 'E':
                 if (targets.length > keys.length) {
@@ -2749,8 +2786,8 @@ var View = (function () {
                 case 6 /* EXPAND */:
                     MAP.map(targets, trigger, false);
                     break;
-                case 7 /* ENTER_C */:
-                    trigger(document.querySelector('.' + ATTRIBUTE.CURSOR_ID), false, true);
+                case 7 /* CONTRACT */:
+                    MAP.map(targets, trigger, true);
                     break;
                 case 8 /* ENTER */:
                     trigger(document.querySelector('.' + ATTRIBUTE.CURSOR_ID), false, false);
@@ -2758,6 +2795,9 @@ var View = (function () {
                 case 9 /* ENTER_S */:
                     trigger(document.querySelector('.' + ATTRIBUTE.CURSOR_ID), true, false);
                     break;
+                case 12 /* ENTER_C */:
+                  trigger(document.querySelector('.' + ATTRIBUTE.CURSOR_ID), false, true);
+                  break;
                 default:
                     unselect();
             }
@@ -2865,5 +2905,5 @@ function click(elem, shiftKey, ctrlKey) {
     }
 }
 
-},{"../attribute/attribute":2,"../controller/controller":3,"../entity/entity":5,"../model/model":8,"../state/module":9,"./map":11}]},{},[2,3,4,5,6,7,8,9,10,11,12]);
+},{"../attribute/attribute":2,"../controller/controller":3,"../entity/entity":5,"../model/model":8,"../state/module":9,"./map":11}]},{},[2,3,4,5,6,7,8,9,10,11,12,13]);
 }("spatial-navigation", "0.4.7");

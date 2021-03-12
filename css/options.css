@@ -1,0 +1,204 @@
+html * {
+  box-sizing: border-box;
+}
+
+body {
+  background: black;
+  color: #fafafa;
+  margin: 0px !important;
+}
+
+@media only screen and (max-width: 730px) {
+  body {
+    padding: 10px;
+  }
+}
+
+h1,
+h2 {
+  color: #fafafa;
+  font-family: system-ui;
+  font-weight: 500;
+}
+
+h1 {
+  font-size: 30px;
+}
+
+h2 {
+  font-size: 18px;
+}
+
+.title {
+  padding: 15px 0 2px 0;
+  text-align: center;
+  margin-bottom: -20px;
+}
+
+.title-area {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  max-width: 700px;
+  margin: 20px auto 2px auto;
+}
+
+.setting-area {
+  padding-left: 10px;
+}
+
+.card {
+  padding: 12px 18px;
+  background-color: #171b1f;
+  border: 1px solid #3e4852;
+  border-radius: 5px;
+  font-family: system-ui;
+  max-width: 700px;
+  margin: 0 auto 20px auto;
+}
+
+.setting {
+  display: flex;
+  justify-content: space-between;
+  padding: 1px;
+  font-size: 12px;
+  font-weight: 400;
+  position: relative;
+  flex-wrap: wrap;
+}
+
+.setting-description {
+  margin: auto 0;
+}
+
+.btn {
+  background-color: rgb(42, 52, 61);
+  border: 1px solid #3e4852;
+  border-radius: 3px;
+  box-sizing: border-box;
+  display: inline-block;
+  position: relative;
+  height: 30px;
+  cursor: pointer;
+}
+
+hr {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border: 0;
+  border-top: 1px solid #3e4852;
+  box-sizing: content-box;
+  height: 0;
+  overflow: visible;
+}
+
+.close {
+  margin: 6px 3px;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  display: inline-block;
+  vertical-align: middle;
+  animation: pop 16ms linear;
+  width: 18px;
+  height: 18px;
+  border-radius: 1px;
+  background-color: rgba(0, 0, 0, 0);
+  opacity: 1;
+  border: 0;
+  padding: 0;
+  fill: #fafafa;
+}
+
+.close:hover {
+  fill: red;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.btn-text {
+  display: inline-block;
+  align-items: center;
+  vertical-align: middle;
+  margin: 6px 10px;
+}
+
+.hotkeys .btn-text {
+  margin-right: 0;
+}
+
+.btn-hov:hover {
+  background-color: #3e4852;
+}
+
+.btn-enter {
+  background-color: #00b1e2;
+}
+
+.reset-area {
+  display: flex;
+  justify-content: center;
+  position: relative;
+  margin: 50px 0;
+}
+
+.reset {
+  font-size: 12px;
+  font-weight: 400;
+  background-color: rgb(202, 74, 74);
+}
+
+.reset:hover {
+  background-color: rgb(148, 54, 54);
+}
+
+.info {
+  color: #00b1e2;
+  position: relative;
+  display: inline-block;
+  margin-left: 4px;
+}
+
+.info .info-content {
+  visibility: hidden;
+  width: max-content;
+  max-width: 450px;
+  background-color: rgb(44, 44, 44);
+  border: 1px solid rgb(1, 140, 179);
+  color: #fff;
+  padding: 5px 8px;
+  border-radius: 6px;
+  display: inline-block;
+  font-style: normal;
+
+  /* Positioning the tooltip */
+  position: absolute;
+  z-index: 1;
+  top: -5px;
+  left: 105%;
+}
+
+.info-content img {
+  margin-top: 6px;
+  max-width: 432px;
+}
+
+/* Show the tooltip when the mouse hovers the tooltip container */
+.info:hover .info-content {
+  visibility: visible;
+}
+
+.options-container {
+  margin: 30px 0 15px 0;
+  width: 100%;
+  text-align: center;
+}
+
+.options-container input[type="radio"] {
+  position: absolute;
+  clip: rect(0, 0, 0, 0);
+  pointer-events: none;
+}
+
+.options-container img {
+  height: 200px;
+  border-radius: 8px;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
