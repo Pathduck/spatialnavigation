@@ -2510,6 +2510,7 @@ function map(targets, callback, reverse, stack) {
         }
         observer.blur();
         observer.remove();
+        // TODO: Decouple from E key
         switch (key) {
             case !reverse ? 'e' : 'E':
                 if (targets.length > keys.length) {
