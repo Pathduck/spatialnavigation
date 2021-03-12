@@ -2805,8 +2805,8 @@ var View = (function () {
                 case 6 /* EXPAND */:
                     MAP.map(targets, trigger, false);
                     break;
-                case 7 /* ENTER_C */:
-                    trigger(document.querySelector('.' + ATTRIBUTE.CURSOR_ID), false, true);
+                case 7 /* CONTRACT */:
+                    MAP.map(targets, trigger, true);
                     break;
                 case 8 /* ENTER */:
                     trigger(document.querySelector('.' + ATTRIBUTE.CURSOR_ID), false, false);
