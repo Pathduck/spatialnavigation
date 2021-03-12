@@ -1801,20 +1801,15 @@ var MODULE;
 })(MODULE || (MODULE = {}));
 }("lazychain", "0.3.0-alpha.23");
 
-},{}],
-// ===============================================================================================================================
-13:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 "use strict";
 var KEYS_DOWN = new Set();
-exports.KEYS_DOWN = KEYS_DOWN;
-let HOTKEY_CODES = {};
-exports.HOTKEY_CODES = HOTKEY_CODES;
+var HOTKEY_CODES = {};
 
 function getSettings(callback) {
   chrome.storage.local.get(["extension-settings"], function (result) {
     let settingsFull = result["extension-settings"];
-    localStorage.setItem("HOTKEY_CODES", JSON.stringify(settingsFull.hotkeys.codes));
-      // console.log(HOTKEY_CODES);
+    HOTKEY_CODES = settingsFull.hotkeys.codes;
 
     if (callback instanceof Function) {
       callback();
@@ -1823,15 +1818,27 @@ function getSettings(callback) {
 }
 exports.getSettings = getSettings;
 
-function startKeyPressListeners() {
-  window.addEventListener("keyup", keyRelease);
+function isHotkeyPressed(hotkeyID) {
+  return setArrayMatch(KEYS_DOWN, HOTKEY_CODES[hotkeyID]);
 }
-exports.startKeyPressListeners = startKeyPressListeners;
+exports.isHotkeyPressed = isHotkeyPressed;
 
-function keyRelease(e) {
+// Functions for handling keys down
+// ------------------------------------------
+function startKeyUpListener() {
+  window.addEventListener("keyup", removeFromKeysDown);
+}
+exports.startKeyUpListener = startKeyUpListener;
+
+function removeFromKeysDown(e) {
   KEYS_DOWN.delete(e.key.toLowerCase());
 }
-exports.keyRelease = keyRelease;
+
+function addToKeysDown(e) {
+  KEYS_DOWN.add(e.key.toLowerCase());
+}
+exports.addToKeysDown = addToKeysDown;
+
 
 // checking equality of set values to array values, not case sensitive
 function setArrayMatch(set1, array1) {
@@ -1846,11 +1853,8 @@ function setArrayMatch(set1, array1) {
   // Otherwise, return true
   return true;
 }
-exports.setArrayMatch = setArrayMatch;
 
-},{}],
-// ===============================================================================================================================
-2:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 "use strict";
 exports.CURSOR_ID = 'spatialnavigation-cursor';
 exports.URLDISPLAY_ID = 'spatialnavigation-urldisplay';
