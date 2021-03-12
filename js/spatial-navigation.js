@@ -2521,12 +2521,13 @@ function map(targets, callback, reverse, stack) {
     function handler(event) {
         event.preventDefault();
         event.stopImmediatePropagation();
-        var key = ja2en(event.target.value), shiftKey = key === key.toUpperCase(), target = table[key.toLowerCase()];
+        // TODO: find way to detect Ctrl key
+        var key = ja2en(event.target.value), shiftKey = key === key.toUpperCase(), target = table[key.toLowerCase()], controlKey = false;
         observer.removeEventListener('keydown', handler);
         observer.removeEventListener('blur', handler);
         container.remove();
         if (key && target) {
-            callback(target, shiftKey);
+            callback(target, shiftKey, controlKey);
         }
         observer.blur();
         observer.remove();
