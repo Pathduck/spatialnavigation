@@ -2385,8 +2385,8 @@ function main() {
     }
     function register() {
         window.removeEventListener("DOMContentLoaded", register);
-        HELPER_FUNCTIONS.getSettings(console.log(localStorage.getItem("HOTKEY_CODES")));
-        HELPER_FUNCTIONS.startKeyPressListeners();
+        HELPER_FUNCTIONS.getSettings();
+        HELPER_FUNCTIONS.startKeyUpListener();
         CONTROLLER.Controller([window])
             .forEach(function (view) { return views.unshift(view); });
     }
