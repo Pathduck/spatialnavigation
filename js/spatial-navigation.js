@@ -2814,6 +2814,9 @@ var View = (function () {
                 case 9 /* ENTER_S */:
                     trigger(document.querySelector('.' + ATTRIBUTE.CURSOR_ID), true, false);
                     break;
+                case 12 /* ENTER_C */:
+                  trigger(document.querySelector('.' + ATTRIBUTE.CURSOR_ID), false, true);
+                  break;
                 default:
                     unselect();
             }
