@@ -1856,6 +1856,8 @@ function setArrayMatch(set1, array1) {
 
 },{}],2:[function(require,module,exports){
 "use strict";
+var HELPER_FUNCTIONS = require('helperFunctions');
+
 exports.CURSOR_ID = 'spatialnavigation-cursor';
 exports.URLDISPLAY_ID = 'spatialnavigation-urldisplay';
 exports.MARKER_TAG = 'spatialnavigation-marker';
@@ -1868,6 +1870,7 @@ function attribute(event, cursor) {
 exports.attribute = attribute;
 
 function key2command(event) {
+  HELPER_FUNCTIONS.addToKeysDown(event);
   // ===============================================================================================================================
   // Adding a hotkey for extension disable (Nomadic 07.03.2021 )
   // ===============================================================================================================================
@@ -1885,68 +1888,44 @@ function key2command(event) {
     localStorage.setItem("isEnabled", true);
   }
 
-  // check to see if the key combo is the enable/disable command ( Ctrl + Shift + X )
-  if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === "x") {
+  // check to see if the key combo is the enable/disable command
+  if (HELPER_FUNCTIONS.isHotkeyPressed("disableKeys")) {
     // flip the value in storage
     isSpatialNavEnabled = !isSpatialNavEnabled;
     localStorage.setItem("isEnabled", isSpatialNavEnabled);
   }
 
   // prevent other keys when disabled
-  if (!isSpatialNavEnabled) return 11;
+  if (!isSpatialNavEnabled) return 11; // INVALID
 
-  // ===============================================================================================================================
-  // END CHANGED SECTION
-  // ===============================================================================================================================
-
-  // ... change or leave any logic below however you need
-    if (event.altKey || event.metaKey) {
-        return 11 /* INVALID */;
-    }
-
-    if (event.shiftKey) {
-		switch (event.keyCode) {
-			case 13: // Enter
-			case 70: // F
-				return 9; // SHIFT+ENTER
-			default:
-				return 11;
-		}
-	}
-	else if (event.ctrlKey) {
-		switch (event.keyCode) {
-			case 13: // Enter
-			case 70: // F
-				return 7; // CTRL+ENTER
-			default:
-				return 11;
-		}
-	}
-	else {
-		switch (event.keyCode) {
-			case 81: // Q
-				return 10; // QUIT
-			case 69: // E
-				return 6; // EXPAND
-			case 87: // W
-				return 0; // UP
-			case 83: // S
-				return 2; // DOWN
-			case 65: // A
-				return 4; // LEFT
-			case 68: // D
-				return 5; // RIGHT
-			case 13: // Enter
-			case 70: // F
-				return 8; // ENTER
-			default:
-				return 11 /* INVALID */;
-		}
-	}
+  // check to see if key combo matches an action
+  if(HELPER_FUNCTIONS.isHotkeyPressed("navUp")) {
+      return 0;
+  } else if(HELPER_FUNCTIONS.isHotkeyPressed("navLeft")) {
+      return 4;
+  } else if(HELPER_FUNCTIONS.isHotkeyPressed("navDown")) {
+      return 2;
+  } else if(HELPER_FUNCTIONS.isHotkeyPressed("navRight")) {
+      return 5;
+  } else if(HELPER_FUNCTIONS.isHotkeyPressed("expand")) {
+      return 6;
+  } else if(HELPER_FUNCTIONS.isHotkeyPressed("contract")) {
+      return 7;
+  } else if(HELPER_FUNCTIONS.isHotkeyPressed("quit")) {
+      return 10;
+  } else if(HELPER_FUNCTIONS.isHotkeyPressed("click")) {
+      return 8;
+  } else if(HELPER_FUNCTIONS.isHotkeyPressed("shiftClick")) {
+      return 9;
+  } else if(HELPER_FUNCTIONS.isHotkeyPressed("controlClick")) {
+      return 12;
+  } else {
+      return 11; // INVALID
+  }
 }
 exports.key2command = key2command;
 
-},{}],3:[function(require,module,exports){
+},{"helperFunctions":13}],3:[function(require,module,exports){
 "use strict";
 var MODEL = require('../model/model');
 var VIEW = require('../view/view');
