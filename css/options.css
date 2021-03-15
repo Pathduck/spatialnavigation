@@ -63,7 +63,7 @@ h2 {
   font-weight: 400;
   position: relative;
   flex-wrap: wrap;
-  height: 2.7rem;
+  justify-content: flex-end;
 }
 
 .setting-description {
@@ -120,7 +120,7 @@ hr {
 }
 
 .hotkeys {
-  margin: auto 4px;
+  margin: 7px 4px;
 }
 
 .hotkeys .btn-text {
@@ -133,7 +133,7 @@ hr {
 
 .btn-enter {
   background-color: #00b1e2;
-  margin: auto 4px;
+  margin: 7px 4px;
 }
 
 .reset-area {
@@ -209,7 +209,7 @@ hr {
 
 .addHotkey {
   opacity: 0;
-  margin: auto 4px;
+  margin: 7px 4px;
   transition: opacity 0.4s ease-out;
 }
 
