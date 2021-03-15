@@ -59,12 +59,11 @@ h2 {
 
 .setting {
   display: flex;
-  justify-content: space-between;
-  padding: 1px;
   font-size: 12px;
   font-weight: 400;
   position: relative;
   flex-wrap: wrap;
+  height: 2.7rem;
 }
 
 .setting-description {
@@ -83,8 +82,8 @@ h2 {
 }
 
 hr {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  margin-top: 2px;
+  margin-bottom: 2px;
   border: 0;
   border-top: 1px solid #3e4852;
   box-sizing: content-box;
@@ -121,7 +120,7 @@ hr {
 }
 
 .hotkeys {
-  margin: 0 4px;
+  margin: auto 4px;
 }
 
 .hotkeys .btn-text {
