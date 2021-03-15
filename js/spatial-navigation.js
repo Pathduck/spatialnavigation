@@ -1825,10 +1825,15 @@ exports.isHotkeyPressed = isHotkeyPressed;
 
 // Functions for handling keys down
 // ------------------------------------------
-function startKeyUpListener() {
+function startListeners() {
   window.addEventListener("keyup", removeFromKeysDown);
+  
+  //* BUG-FIX: Changing tabs or windows using keyboard failed to clear the keys from the KEYS_DOWN set
+  window.addEventListener("blur", () => {
+    KEYS_DOWN.clear();
+  })
 }
-exports.startKeyUpListener = startKeyUpListener;
+exports.startListeners = startListeners;
 
 function removeFromKeysDown(e) {
   KEYS_DOWN.delete(e.key.toLowerCase());
@@ -2365,7 +2370,7 @@ function main() {
     function register() {
         window.removeEventListener("DOMContentLoaded", register);
         HELPER_FUNCTIONS.getSettings();
-        HELPER_FUNCTIONS.startKeyUpListener();
+        HELPER_FUNCTIONS.startListeners();
         CONTROLLER.Controller([window])
             .forEach(function (view) { return views.unshift(view); });
     }
