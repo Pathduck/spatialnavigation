@@ -133,7 +133,7 @@ hr {
 
 .btn-enter {
   background-color: #00b1e2;
-  margin-left: auto;
+  margin: auto 4px;
 }
 
 .reset-area {
@@ -209,12 +209,15 @@ hr {
 
 .addHotkey {
   opacity: 0;
-  margin-left: auto;
-  margin-right: 4px;
+  margin: auto 4px;
   transition: opacity 0.4s ease-out;
 }
 
 .setting:hover .addHotkey {
   opacity: 1;
   transition: opacity 0.2s linear;
+}
+
+.setting > div:first-of-type {
+  margin: auto 4px auto auto;
 }

@@ -70,8 +70,8 @@ function updateHotkey(element, newVal, index) {
     // remove the hotkey at the index provided
     newSettings.hotkeys.codes[parentSection.id].splice(index, 1);
   } else {
-    // add the new hotkey to the end of the stored hotkeys
-    newSettings.hotkeys.codes[parentSection.id].push(newVal);
+    // add the new hotkey to the beginning of the stored hotkeys
+    newSettings.hotkeys.codes[parentSection.id].unshift(newVal);
   }
 
   chrome.storage.local.set({ "extension-settings": newSettings }, function () {
