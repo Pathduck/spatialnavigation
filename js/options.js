@@ -61,13 +61,21 @@ function enterNewHotkey(event) {
   }
 }
 
-function updateHotkey(element, newVal) {
+function updateHotkey(element, newVal, index) {
   let parentSection = element.parentNode;
   parentSection.removeChild(element);
   let newSettings = SETTINGS_FULL;
-  newSettings.hotkeys.codes[parentSection.id] = newVal;
+
+  if (newVal === null) {
+    // remove the hotkey at the index provided
+    newSettings.hotkeys.codes[parentSection.id].splice(index, 1);
+  } else {
+    // add the new hotkey to the end of the stored hotkeys
+    newSettings.hotkeys.codes[parentSection.id].push(newVal);
+  }
+
   chrome.storage.local.set({ "extension-settings": newSettings }, function () {
-    setHotkeyBtn(parentSection);
+    getSettings(setHotkeyBtn(parentSection));
     // TODO: Send message to content scripts that settings updated
   });
 }
@@ -97,23 +105,38 @@ function formateHotkeys(set1) {
   return keyString;
 }
 
-function setHotkeyBtn(element) {
-  let el = document.createElement("div");
+function setHotkeyBtn(btnParent) {
+  let hotkeys = HOTKEY_CODES[btnParent.id];
+
+  // remove old buttons
+  while (btnParent.childNodes.length > 2) {
+    btnParent.removeChild(btnParent.lastChild);
+  }
+
   // TODO: Check if hotkey combo in storage
 
+  let createNewBtn = document.createElement("div");
+  createNewBtn.setAttribute("id", btnParent.id + "-btn");
+  createNewBtn.setAttribute("class", "btn btn-hov addHotkey");
+  createNewBtn.innerHTML = `
+       <span class="btn-text">
+           Click to type a new shortcut
+       </span>
+   `;
+  // Add listner for new hotkey input
+  createNewBtn.addEventListener("click", enterNewHotkey);
+  btnParent.appendChild(createNewBtn);
+
   // if in storage print stored combo
-  if (HOTKEY_CODES[element.id].length !== 0) {
-    console.log(element.id);
-    // delete previous btn
-    let old = document.getElementById(element.id + "-hotkey");
-    if (old !== null && element.parentNode) {
-      old.parentNode.removeChild(old);
-    }
-    el.setAttribute("id", element.id + "-hotkey");
-    el.setAttribute("class", "btn hotkeys");
-    el.innerHTML = `
+  if (hotkeys.length !== 0) {
+    hotkeys.forEach((hotkey, index) => {
+      let el = document.createElement("div");
+      console.log(hotkey + " " + index);
+      el.setAttribute("id", btnParent.id + "-hotkey-" + index);
+      el.setAttribute("class", "btn hotkeys");
+      el.innerHTML = `
       <span class="btn-text">
-            ${formateHotkeys(new Set(HOTKEY_CODES[element.id]))}
+            ${formateHotkeys(new Set(hotkey))}
       </span>
       <button class="close" title="Delete shortcut">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
@@ -121,30 +144,14 @@ function setHotkeyBtn(element) {
           </svg>
       </button>
     `;
-    el.getElementsByClassName("close")[0].addEventListener(
-      "click",
-      (deleteHotkey = function () {
-        updateHotkey(el, []);
-      })
-    );
-    element.appendChild(el);
-  } else {
-    // delete any previous btn
-    let old = document.getElementById(element.id + "-btn");
-    if (old !== null && element.parentNode) {
-      old.parentNode.removeChild(old);
-    }
-
-    el.setAttribute("id", element.id + "-btn");
-    el.setAttribute("class", "btn btn-hov");
-    el.innerHTML = `
-        <span class="btn-text">
-            Click to type a new shortcut
-        </span>
-    `;
-    // Add listner for new hotkey input
-    el.addEventListener("click", enterNewHotkey);
-    element.appendChild(el);
+      el.getElementsByClassName("close")[0].addEventListener(
+        "click",
+        (deleteHotkey = function () {
+          updateHotkey(el, null, index);
+        })
+      );
+      btnParent.appendChild(el);
+    });
   }
 }
 
