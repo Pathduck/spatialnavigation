@@ -59,12 +59,12 @@ h2 {
 
 .setting {
   display: flex;
-  justify-content: space-between;
-  padding: 1px;
   font-size: 12px;
   font-weight: 400;
   position: relative;
   flex-wrap: wrap;
+  justify-content: flex-end;
+  min-height: 44px;
 }
 
 .setting-description {
@@ -83,8 +83,8 @@ h2 {
 }
 
 hr {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  margin-top: 2px;
+  margin-bottom: 2px;
   border: 0;
   border-top: 1px solid #3e4852;
   box-sizing: content-box;
@@ -120,6 +120,10 @@ hr {
   margin: 6px 10px;
 }
 
+.hotkeys {
+  margin: 7px 4px;
+}
+
 .hotkeys .btn-text {
   margin-right: 0;
 }
@@ -130,6 +134,7 @@ hr {
 
 .btn-enter {
   background-color: #00b1e2;
+  margin: 7px 4px;
 }
 
 .reset-area {
@@ -201,4 +206,52 @@ hr {
   height: 200px;
   border-radius: 8px;
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+.addHotkey {
+  opacity: 0;
+  margin: 7px 4px;
+  transition: opacity 0.4s ease-out;
+}
+
+.setting:hover .addHotkey {
+  opacity: 1;
+  transition: opacity 0.2s linear;
+}
+
+.setting > div:first-of-type {
+  margin: auto 4px auto auto;
+}
+
+/* For Notification Messages */
+
+#notify { 
+  --notificationBGColor: rgba(0, 137, 255, 0.6);
+  --notificationBorder: rgb(0, 137, 255);
+  --notificationTextColor: white;
+  position: sticky;
+  top: 0px;
+  width: 400px;
+  height: 0;
+  color: var(--notificationTextColor);
+  font-size: 15px;
+  font-weight: 500;
+  text-align: center;
+  background: var(--notificationBGColor);
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: height .2s, border .2s, margin .2s;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#notifyText {
+  line-height: 50px;
+  vertical-align: middle;
+}
+
+.active {  
+  height:50px !important;
+  border-bottom: 2px var(--notificationBorder) solid !important;
+  margin-top: -50px;
 }

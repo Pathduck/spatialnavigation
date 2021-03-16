@@ -2,17 +2,17 @@ chrome.runtime.onInstalled.addListener(function () {
   let settings = {
     hotkeys: {
       codes: {
-        navUp: ["w"],
-        navLeft: ["a"],
-        navDown: ["s"],
-        navRight: ["d"],
-        expand: ["e"],
-        contract: ["shift", "e"],
-        quit: ["q"],
-        click: ["enter"],
-        shiftClick: ["shift", "enter"],
-        controlClick: ["control", "enter"],
-        disableKeys: ["control", "shift", "x"],
+        navUp: [["w"]],
+        navLeft: [["a"]],
+        navDown: [["s"]],
+        navRight: [["d"]],
+        expand: [["e"]],
+        contract: [["shift", "e"]],
+        quit: [["q"]],
+        click: [["f"], ["enter"]],
+        shiftClick: [["shift", "enter"]],
+        controlClick: [["control", "enter"]],
+        disableKeys: [["control", "shift", "x"]],
       },
     },
   };

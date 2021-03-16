@@ -1819,7 +1819,9 @@ function getSettings(callback) {
 exports.getSettings = getSettings;
 
 function isHotkeyPressed(hotkeyID) {
-  return setArrayMatch(KEYS_DOWN, HOTKEY_CODES[hotkeyID]);
+  return HOTKEY_CODES[hotkeyID].some((combo) => {
+    return setArrayMatch(KEYS_DOWN, combo);
+  })
 }
 exports.isHotkeyPressed = isHotkeyPressed;
 
