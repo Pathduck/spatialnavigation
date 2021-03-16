@@ -5,7 +5,6 @@ function getSettings(callback) {
   chrome.storage.local.get(["extension-settings"], function (result) {
     SETTINGS_FULL = result["extension-settings"];
     HOTKEY_CODES = SETTINGS_FULL.hotkeys.codes;
-    console.log(HOTKEY_CODES);
     if (callback instanceof Function) {
       callback();
     }
@@ -44,7 +43,6 @@ function enterNewHotkey(event) {
       setHotkeyBtn(element.parentNode);
     }
     keysDown.add(e.key.toLowerCase(), keysDown.size);
-    console.log(keysDown);
     textArea.innerHTML = formateHotkeys(keysDown);
     keysFinal = new Set(keysDown);
   }
@@ -175,7 +173,6 @@ function setHotkeyBtn(btnParent) {
   if (hotkeys.length !== 0) {
     hotkeys.forEach((hotkey, index) => {
       let el = document.createElement("div");
-      console.log(hotkey + " " + index);
       el.setAttribute("id", btnParent.id + "-hotkey-" + index);
       el.setAttribute("class", "btn hotkeys");
       el.innerHTML = `
