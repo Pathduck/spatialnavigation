@@ -64,6 +64,7 @@ h2 {
   position: relative;
   flex-wrap: wrap;
   justify-content: flex-end;
+  min-height: 44px;
 }
 
 .setting-description {
@@ -220,4 +221,37 @@ hr {
 
 .setting > div:first-of-type {
   margin: auto 4px auto auto;
+}
+
+/* For Notification Messages */
+
+#notify { 
+  --notificationBGColor: rgba(0, 137, 255, 0.6);
+  --notificationBorder: rgb(0, 137, 255);
+  --notificationTextColor: white;
+  position: sticky;
+  top: 0px;
+  width: 400px;
+  height: 0;
+  color: var(--notificationTextColor);
+  font-size: 15px;
+  font-weight: 500;
+  text-align: center;
+  background: var(--notificationBGColor);
+  overflow: hidden;
+  box-sizing: border-box;
+  transition: height .2s, border .2s, margin .2s;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+#notifyText {
+  line-height: 50px;
+  vertical-align: middle;
+}
+
+.active {  
+  height:50px !important;
+  border-bottom: 2px var(--notificationBorder) solid !important;
+  margin-top: -50px;
 }

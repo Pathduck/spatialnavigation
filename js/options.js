@@ -56,9 +56,53 @@ function enterNewHotkey(event) {
       window.removeEventListener("keydown", keyPress);
       window.removeEventListener("keyup", keyRelease);
       // setHotkeyBtn(element.parentNode);
-      updateHotkey(element, [...keysFinal]);
+      let newHotkey = [...keysFinal];
+      if (isNotDuplicateHotkey(newHotkey, HOTKEY_CODES)) {
+        updateHotkey(element, newHotkey);
+        alertMessage("success", "Hotkey successfully added!", 2000);
+      } else {
+        updateHotkey(element, null);
+        alertMessage("failure", "That hotkey is already in use...", 2000);
+      }
     }
   }
+}
+
+function alertMessage(type, text, timeOut) {
+  let notification = document.getElementById("notify");
+  let notificationText = document.getElementById("notifyText");
+
+  // color the notification
+  let bgColor, textColor, borderColor;
+  switch (type) {
+    case "success":
+      bgColor = "rgb(67 255 125 / 70%)";
+      textColor = "white";
+      borderColor = "lime";
+      break;
+    case "failure":
+      bgColor = "rgb(255 70 104 / 70%)";
+      textColor = "white";
+      borderColor = "red";
+      break;
+    default:
+      bgColor = "rgb(0 137 255 / 60%)";
+      textColor = "white";
+      borderColor = "rgb(0 137 255)";
+      break;
+  }
+  notification.style.setProperty("--notificationBGColor", bgColor);
+  notification.style.setProperty("--notificationBorder", borderColor);
+  notification.style.setProperty("--notificationTextColor", textColor);
+
+  // Set the text
+  notificationText.innerHTML = text;
+
+  // Show the notification for the specified time
+  notification.classList.add("active");
+  setTimeout(function () {
+    notification.classList.remove("active");
+  }, timeOut);
 }
 
 function updateHotkey(element, newVal, index) {
@@ -66,10 +110,10 @@ function updateHotkey(element, newVal, index) {
   parentSection.removeChild(element);
   let newSettings = SETTINGS_FULL;
 
-  if (newVal === null) {
+  if (newVal === null && typeof index !== "undefined") {
     // remove the hotkey at the index provided
     newSettings.hotkeys.codes[parentSection.id].splice(index, 1);
-  } else {
+  } else if (newVal !== null) {
     // add the new hotkey to the beginning of the stored hotkeys
     newSettings.hotkeys.codes[parentSection.id].unshift(newVal);
   }
@@ -148,11 +192,36 @@ function setHotkeyBtn(btnParent) {
         "click",
         (deleteHotkey = function () {
           updateHotkey(el, null, index);
+          alertMessage("success", "Hotkey removed!", 2000);
         })
       );
       btnParent.appendChild(el);
     });
   }
+}
+
+function isNotDuplicateHotkey(newHotkey, allHotkeys) {
+  let arrayHotkeys = Object.values(allHotkeys);
+  for (command of arrayHotkeys) {
+    for (hotkey of command) {
+      if (areArraysEqual(newHotkey, hotkey)) {
+        return false;
+      }
+    }
+  }
+  // no duplicates found
+  return true;
+}
+
+function areArraysEqual(a, b) {
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  if (a.length !== b.length) return false;
+
+  for (var i = 0; i < a.length; ++i) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
 }
 
 getSettings(function () {
