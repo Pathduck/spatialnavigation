@@ -2516,7 +2516,7 @@ function map(targets, callback, reverse, stack) {
             callback(target, shiftKey, controlKey);
         }
         observer.blur();
-        observer.remove();
+        setTimeout(function () { return observer.remove(); }, 1);
         // TODO: Decouple from E key
         switch (key) {
             case !reverse ? 'e' : 'E':
