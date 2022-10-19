@@ -7,17 +7,17 @@
     }
   ],
   "background": {
-    "scripts": ["js/background.js"],
-    "persistent": false
+    "service_worker": "js/background.js"
   },
   "icons": {
     "32": "img/icon.png"
   },
   "description": "Smart spatial navigation with key map to links. Bind WASDE and Q keys.",
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Spatial Navigation",
-  "permissions": ["\u003Call_urls>", "storage"],
+  "permissions": ["storage"],
+  "host_permissions": ["<all_urls>"],
   "short_name": "spatial-navigation",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "options_page": "options.html"
 }
