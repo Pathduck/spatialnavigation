@@ -2456,7 +2456,7 @@ function map(targets, callback, reverse, stack) {
         return [];
     }
     var scrollTop = window.scrollY, scrollLeft = window.scrollX;
-    var keys = 'dsawgvcxlohnmzbptuy'.split(''), container = document.createElement('div'), observer = document.createElement('input'), table = {};
+    var keys = 'abcdfghijklmnoprstuvwxyz'.split(''), container = document.createElement('div'), observer = document.createElement('input'), table = {};
     observer.style.cssText = [
         'position: fixed;',
         'width: 0px;',
