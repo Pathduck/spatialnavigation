@@ -17,7 +17,7 @@ Binds WASD, F, E and Q keys for navigation/hints.
 * __Ctrl+Enter/Ctrl+f__: Ctrl-click link (open new background tab)
 * __Ctrl+Shift+x__: Disable the hotkeys (for current tab)
 
-To set your own keys, visit the extension options page in your browser's extension manager page.
+To set your own keys click the icon and choose `Options`, or visit the extension details in the browser extension manager.
 
 ### Screenshot
 
