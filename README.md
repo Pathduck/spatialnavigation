@@ -3,6 +3,7 @@
 __Spatial Navigation Chrome Extension__
 
 Smart spatial navigation with key map to links.
+
 Based off the *[Spatial Navigation](https://github.com/falsandtru/spatial-navigation)* extension by Falsandtru.
 
 Binds WASD, F, E and Q keys for navigation/hints mode.
