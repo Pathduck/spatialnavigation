@@ -38,7 +38,7 @@ Here are some of the more common issues/bugs/TODOs and some tips:
 
 *  The default `Ctrl+F` interferes with the common browser shortcut for Find-In-Page. I suggest using something else for Find, like F3, or changing the key to for instance `G`.
 
-* Even if keys are changed, there might be conflicts with the link hints as they are hord-coded, see below.
+* Even if keys are changed, there might be conflicts with the link hints as they are hard-coded, see below.
 
 * The extension uses a hard-coded list of link hint keys. These might interfere with common browser keys, especially if single-key shortcuts are used in the browser. If so these will need to be removed from the list.
 
