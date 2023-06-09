@@ -13,7 +13,7 @@ Binds WASD, F, E and Q keys for navigation/hints.
 * `E/Shift+E`: Expand/Contract (change link targets)
 * `Q`: Quit navigation/hints mode
 * `Enter/F`: Click link
-* `Shift+Enter/Shift+F`: Shift-click link (open new focused tab)
+* `Shift+Enter/Shift+F`: Shift-click link (open new tab)
 * `Ctrl+Enter/Ctrl+F`: Ctrl-click link (open new background tab)
 * `Ctrl+Shift+X`: Disable the hotkeys (for current tab)
 
@@ -22,5 +22,33 @@ Set your own keys: Click the icon and choose Options, or visit the details page 
 ### Screenshot
 
 ![Screenshot of extension in use](https://raw.githubusercontent.com/Pathduck/spatialnavigation/main/img/screenshot.jpg "Screenshot of extension in use")
+
+### Notes
+
+This extension is far from feature complete, and some things just don't work as expected.
+The inherited code is also a bit of a mess, and since I am no JS coder there's limits to what can be done.
+As this started as a very personal extension for my use, some things are the way I want them and not easily changed.
+
+Here are some of the more common issues/bugs/TODOs and some tips:
+
+* Using `Ctrl+<link key>` in hints mode does not work. Using `Shift+<link key>` works for opening in a new tab though.
+
+*  The default Ctrl+click key interferes with the common shortcut `Ctrl+F` for Find.
+I suggest using something else for Find, like F3, or changing the key to for instance `G`.
+
+* Even if keys are changed, there might be conflict issues with the link hints, see below.
+
+* The extension uses a hard-coded list of link hint keys. These might interfere with common browser keys,especially if single-key shortcuts are used in the browser. If so these will need to be removed from the list.
+
+* The list of available link hint keys are in `js/spatial-navigation.js`:
+`var keys = 'abcdfghijklmnoprstuvwxyz'`
+You can edit this string and reload the extension. You can also add keys you want to use instead, for instance the number keys (if not used for anything else).
+
+* The CSS styles for links/hints/url display can if necessary be changed by editing the following values in `js/spatial-navigation.js`,:
+`this.style.innerHTML`
+`marker.style.cssText`
+`display.style.cssText`
+
+* There are no language options or internationalization.
 
 Any contributions are most welcome! 🤓👍
