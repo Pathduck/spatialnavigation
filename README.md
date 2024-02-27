@@ -22,7 +22,7 @@ Any contributions are most welcome! 🤓👍
 
 ### Screenshot
 
-![Screenshot of extension in use](https://raw.githubusercontent.com/Pathduck/spatialnavigation/main/img/screenshot.jpg "Screenshot of extension in use")
+![Screenshot of extension in use](img/screenshot.jpg "Screenshot of extension in use")
 
 ### Notes
 
