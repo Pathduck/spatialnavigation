@@ -1,6 +1,6 @@
 # Spatialnavigation
 
-__Spatial Navigation Chrome Extension__
+**Spatial Navigation Chrome Extension**
 
 Smart spatial navigation with key map to links.
 
