@@ -2692,7 +2692,7 @@ var View = (function () {
             '  outline: 3px solid gold !important;',
             '  outline-offset: -3px !important;',
             '  opacity: unset !important;',
-            '  background-color: rgba(255, 255, 0, 0.4) !important;',
+            '  background-color: rgba(255, 255, 0, 0.25) !important;',
             '}',
             'img.' + ATTRIBUTE.CURSOR_ID + ' {',
             '  outline-offset: -3px !important;',
