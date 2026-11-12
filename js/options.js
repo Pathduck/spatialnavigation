@@ -1,232 +1,274 @@
-var SETTINGS_FULL;
-var HOTKEY_CODES;
+/**
+ * Options page — hotkey configuration for the Spatial Navigation extension.
+ *
+ * Reads and writes chrome.storage.local["extension-settings"], the same object
+ * the content script loads its hotkey table from.
+ */
 
-function getSettings(callback) {
-  chrome.storage.local.get(["extension-settings"], function (result) {
-    SETTINGS_FULL = result["extension-settings"];
-    HOTKEY_CODES = SETTINGS_FULL.hotkeys.codes;
-    if (callback instanceof Function) {
-      callback();
-    }
+'use strict';
+
+/* ================================================================== *
+ * Settings
+ * ================================================================== */
+
+let settings = null;
+let hotkeyCodes = {};
+
+function loadSettings(callback) {
+  chrome.storage.local.get(['extension-settings'], (result) => {
+    settings = result['extension-settings'] || {};
+    if (!settings.hotkeys) settings.hotkeys = {};
+    if (!settings.hotkeys.codes) settings.hotkeys.codes = {};
+    hotkeyCodes = settings.hotkeys.codes;
+    if (typeof callback === 'function') callback();
   });
 }
+
+/* ================================================================== *
+ * Hotkey formatting
+ * ================================================================== */
+
+const KEY_LABELS = {
+  control: 'Ctrl',
+  arrowup: '&uarr;',
+  arrowright: '&rarr;',
+  arrowdown: '&darr;',
+  arrowleft: '&larr;',
+  ' ': 'Space',
+  pageup: 'PgUp',
+  pagedown: 'PgDn',
+  delete: 'Del',
+};
+
+const HTML_ESCAPES = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  "'": '&#39;',
+};
+
+const escapeHtml = (text) => text.replace(/[&<>"']/g, (char) => HTML_ESCAPES[char]);
+
+/**
+ * "shift + e" -> "Shift + E". Arrow keys become HTML entities, so the result
+ * is markup; everything else is escaped, because event.key can legitimately
+ * be "<" or "&".
+ */
+function formatHotkey(keys) {
+  return Array.from(keys)
+    .map((key) => {
+      const lower = key.toLowerCase();
+      if (KEY_LABELS[lower]) return KEY_LABELS[lower];
+      return escapeHtml(key.charAt(0).toUpperCase() + key.slice(1).toLowerCase());
+    })
+    .join(' + ');
+}
+
+/* ================================================================== *
+ * Notifications
+ * ================================================================== */
+
+const NOTIFY_COLORS = {
+  success: { bg: 'rgb(67 255 125 / 70%)', text: 'white', border: 'lime' },
+  failure: { bg: 'rgb(255 70 104 / 70%)', text: 'white', border: 'red' },
+  info: { bg: 'rgb(0 137 255 / 60%)', text: 'white', border: 'rgb(0 137 255)' },
+};
+
+let notifyTimer = 0;
+
+function notify(type, text, timeout) {
+  const notification = document.getElementById('notify');
+  const notificationText = document.getElementById('notifyText');
+  if (!notification || !notificationText) return;
+
+  const colors = NOTIFY_COLORS[type] || NOTIFY_COLORS.info;
+  notification.style.setProperty('--notificationBGColor', colors.bg);
+  notification.style.setProperty('--notificationBorder', colors.border);
+  notification.style.setProperty('--notificationTextColor', colors.text);
+
+  notificationText.textContent = text;
+  notification.classList.add('active');
+
+  // Restart the timer instead of stacking them, so rapid edits don't hide the
+  // notification early.
+  clearTimeout(notifyTimer);
+  notifyTimer = setTimeout(() => notification.classList.remove('active'), timeout);
+}
+
+/* ================================================================== *
+ * Rendering
+ * ================================================================== */
+
+const CLOSE_ICON = `
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+    <path d="M13.5 6l-1.4-1.4-3.1 3-3.1-3L4.5 6l3.1 3.1-3 2.9 1.5 1.4L9 10.5l2.9 2.9 1.5-1.4-3-2.9"></path>
+  </svg>
+`;
 
 function populateFields() {
-  let hotkeyDivs = document.querySelectorAll(".setting[data-type='shortcut']");
-  hotkeyDivs.forEach((hotkeyDiv) => {
-    setHotkeyBtn(hotkeyDiv);
+  document.querySelectorAll(".setting[data-type='shortcut']").forEach(renderSection);
+}
+
+function renderSection(section) {
+  const combos = hotkeyCodes[section.id] || [];
+
+  // Remove only the buttons this function created; the section's own label and
+  // description markup is left alone.
+  section.querySelectorAll('.btn').forEach((btn) => btn.remove());
+
+  section.appendChild(buildAddButton(section));
+  combos.forEach((combo, index) => {
+    section.appendChild(buildHotkeyRow(section, combo, index));
   });
 }
 
-function enterNewHotkey(event) {
-  let element = event.currentTarget;
-  element.removeEventListener("click", enterNewHotkey);
-  element.setAttribute("class", "btn btn-enter");
-  let textArea = element.children[0];
-  textArea.innerHTML = `
-          Enter the shortcut
-  `;
+function buildAddButton(section) {
+  const button = document.createElement('div');
+  button.id = `${section.id}-btn`;
+  button.className = 'btn btn-hov addHotkey';
 
-  let keysDown = new Set();
-  let keysFinal;
-  window.addEventListener("keydown", keyPress);
-  window.addEventListener("keyup", keyRelease);
+  const label = document.createElement('span');
+  label.className = 'btn-text';
+  label.textContent = 'Click to type a new shortcut';
+  button.appendChild(label);
 
-  function keyPress(e) {
-    e.preventDefault();
-    e.stopPropagation();
-
-    // hitting escape cancels input
-    if (e.key.toLowerCase() === "escape") {
-      window.removeEventListener("keydown", keyPress);
-      window.removeEventListener("keyup", keyRelease);
-      setHotkeyBtn(element.parentNode);
-    }
-    keysDown.add(e.key.toLowerCase(), keysDown.size);
-    textArea.innerHTML = formateHotkeys(keysDown);
-    keysFinal = new Set(keysDown);
-  }
-  function keyRelease(e) {
-    keysDown.delete(e.key.toLowerCase());
-
-    // once no more keys are pressed, the final combo is recorded
-    if (keysDown.size === 0) {
-      window.removeEventListener("keydown", keyPress);
-      window.removeEventListener("keyup", keyRelease);
-      // setHotkeyBtn(element.parentNode);
-      let newHotkey = [...keysFinal];
-      if (isNotDuplicateHotkey(newHotkey, HOTKEY_CODES)) {
-        updateHotkey(element, newHotkey);
-        alertMessage("success", "Hotkey successfully added!", 2000);
-      } else {
-        updateHotkey(element, null);
-        alertMessage("failure", "That hotkey is already in use...", 2000);
-      }
-    }
-  }
+  button.addEventListener('click', captureHotkey);
+  return button;
 }
 
-function alertMessage(type, text, timeOut) {
-  let notification = document.getElementById("notify");
-  let notificationText = document.getElementById("notifyText");
+function buildHotkeyRow(section, combo, index) {
+  const row = document.createElement('div');
+  row.id = `${section.id}-hotkey-${index}`;
+  row.className = 'btn hotkeys';
 
-  // color the notification
-  let bgColor, textColor, borderColor;
-  switch (type) {
-    case "success":
-      bgColor = "rgb(67 255 125 / 70%)";
-      textColor = "white";
-      borderColor = "lime";
-      break;
-    case "failure":
-      bgColor = "rgb(255 70 104 / 70%)";
-      textColor = "white";
-      borderColor = "red";
-      break;
-    default:
-      bgColor = "rgb(0 137 255 / 60%)";
-      textColor = "white";
-      borderColor = "rgb(0 137 255)";
-      break;
-  }
-  notification.style.setProperty("--notificationBGColor", bgColor);
-  notification.style.setProperty("--notificationBorder", borderColor);
-  notification.style.setProperty("--notificationTextColor", textColor);
+  const label = document.createElement('span');
+  label.className = 'btn-text';
+  label.innerHTML = formatHotkey(combo);
+  row.appendChild(label);
 
-  // Set the text
-  notificationText.innerHTML = text;
-
-  // Show the notification for the specified time
-  notification.classList.add("active");
-  setTimeout(function () {
-    notification.classList.remove("active");
-  }, timeOut);
-}
-
-function updateHotkey(element, newVal, index) {
-  let parentSection = element.parentNode;
-  parentSection.removeChild(element);
-  let newSettings = SETTINGS_FULL;
-
-  if (newVal === null && typeof index !== "undefined") {
-    // remove the hotkey at the index provided
-    newSettings.hotkeys.codes[parentSection.id].splice(index, 1);
-  } else if (newVal !== null) {
-    // add the new hotkey to the beginning of the stored hotkeys
-    newSettings.hotkeys.codes[parentSection.id].unshift(newVal);
-  }
-
-  chrome.storage.local.set({ "extension-settings": newSettings }, function () {
-    getSettings(setHotkeyBtn(parentSection));
-    // TODO: Send message to content scripts that settings updated
+  const close = document.createElement('button');
+  close.className = 'close';
+  close.title = 'Delete shortcut';
+  close.innerHTML = CLOSE_ICON;
+  close.addEventListener('click', () => {
+    updateHotkey(row, null, index);
+    notify('success', 'Hotkey removed!', 2000);
   });
+  row.appendChild(close);
+
+  return row;
 }
 
-function formateHotkeys(set1) {
-  let replaceTable = {
-    Control: "Ctrl",
-    Arrowup: "&uarr;",
-    Arrowright: "&rarr;",
-    Arrowdown: "&darr;",
-    Arrowleft: "&larr;",
-    "  ": " Space",
-    Pageup: "PgUp",
-    Pagedown: "PgDn",
-    Delete: "Del",
-  };
+/* ================================================================== *
+ * Capture
+ * ================================================================== */
 
-  let keyString = [...set1].map((c) => c.slice(0, 1).toUpperCase() + c.slice(1).toLowerCase()).join(" + ");
-  keyString = keyString.replace(
-    /Control|Arrowup|Arrowright|Arrowdown|Arrowleft|\s\s|Pageup|Pagedown|Delete/g,
-    function (match) {
-      return replaceTable[match];
+function captureHotkey(event) {
+  const button = event.currentTarget;
+  const section = button.parentNode;
+
+  button.removeEventListener('click', captureHotkey);
+  button.className = 'btn btn-enter';
+
+  const label = button.querySelector('.btn-text');
+  label.textContent = 'Enter the shortcut';
+
+  const keysDown = new Set();
+  let recorded = null;
+
+  window.addEventListener('keydown', onKeyDown, true);
+  window.addEventListener('keyup', onKeyUp, true);
+
+  function stopCapture() {
+    window.removeEventListener('keydown', onKeyDown, true);
+    window.removeEventListener('keyup', onKeyUp, true);
+  }
+
+  function onKeyDown(keyEvent) {
+    keyEvent.preventDefault();
+    keyEvent.stopPropagation();
+
+    if (keyEvent.key.toLowerCase() === 'escape') {
+      stopCapture();
+      renderSection(section);
+      return;
     }
+
+    keysDown.add(keyEvent.key.toLowerCase());
+    label.innerHTML = formatHotkey(keysDown);
+    // Snapshot at peak: keyup fires one key at a time, so by the time the set
+    // empties we've lost the combo.
+    recorded = new Set(keysDown);
+  }
+
+  function onKeyUp(keyEvent) {
+    keysDown.delete(keyEvent.key.toLowerCase());
+    if (keysDown.size !== 0) return;
+
+    stopCapture();
+    const combo = Array.from(recorded);
+
+    if (isDuplicate(combo)) {
+      updateHotkey(button, null);
+      notify('failure', 'That hotkey is already in use...', 2000);
+    } else {
+      updateHotkey(button, combo);
+      notify('success', 'Hotkey successfully added!', 2000);
+    }
+  }
+}
+
+function isDuplicate(candidate) {
+  return Object.values(hotkeyCodes).some((combos) =>
+    combos.some((combo) => sameCombo(candidate, combo)),
   );
-  keyString = keyString === " " ? "Space" : keyString;
-
-  return keyString;
 }
 
-function setHotkeyBtn(btnParent) {
-  let hotkeys = HOTKEY_CODES[btnParent.id];
-
-  // remove old buttons
-  while (btnParent.childNodes.length > 2) {
-    btnParent.removeChild(btnParent.lastChild);
-  }
-
-  // TODO: Check if hotkey combo in storage
-
-  let createNewBtn = document.createElement("div");
-  createNewBtn.setAttribute("id", btnParent.id + "-btn");
-  createNewBtn.setAttribute("class", "btn btn-hov addHotkey");
-  createNewBtn.innerHTML = `
-       <span class="btn-text">
-           Click to type a new shortcut
-       </span>
-   `;
-  // Add listner for new hotkey input
-  createNewBtn.addEventListener("click", enterNewHotkey);
-  btnParent.appendChild(createNewBtn);
-
-  // if in storage print stored combo
-  if (hotkeys.length !== 0) {
-    hotkeys.forEach((hotkey, index) => {
-      let el = document.createElement("div");
-      el.setAttribute("id", btnParent.id + "-hotkey-" + index);
-      el.setAttribute("class", "btn hotkeys");
-      el.innerHTML = `
-      <span class="btn-text">
-            ${formateHotkeys(new Set(hotkey))}
-      </span>
-      <button class="close" title="Delete shortcut">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
-              <path d="M13.5 6l-1.4-1.4-3.1 3-3.1-3L4.5 6l3.1 3.1-3 2.9 1.5 1.4L9 10.5l2.9 2.9 1.5-1.4-3-2.9"></path>
-          </svg>
-      </button>
-    `;
-      el.getElementsByClassName("close")[0].addEventListener(
-        "click",
-        (deleteHotkey = function () {
-          updateHotkey(el, null, index);
-          alertMessage("success", "Hotkey removed!", 2000);
-        })
-      );
-      btnParent.appendChild(el);
-    });
-  }
+/** Order-sensitive, matching how the content script compares held keys. */
+function sameCombo(a, b) {
+  if (!a || !b || a.length !== b.length) return false;
+  return a.every((key, i) => key === b[i]);
 }
 
-function isNotDuplicateHotkey(newHotkey, allHotkeys) {
-  let arrayHotkeys = Object.values(allHotkeys);
-  for (command of arrayHotkeys) {
-    for (hotkey of command) {
-      if (areArraysEqual(newHotkey, hotkey)) {
-        return false;
-      }
-    }
+/* ================================================================== *
+ * Persistence
+ * ================================================================== */
+
+/**
+ * Adds `combo` to the section, or removes the combo at `index` when `combo`
+ * is null. Passing null with no index just re-renders (the rejected-duplicate
+ * path). `element` is the button that triggered the change; it is removed
+ * before the section is rebuilt.
+ */
+function updateHotkey(element, combo, index) {
+  const section = element.parentNode;
+  section.removeChild(element);
+
+  if (!hotkeyCodes[section.id]) hotkeyCodes[section.id] = [];
+  const combos = hotkeyCodes[section.id];
+
+  if (combo === null && typeof index !== 'undefined') {
+    combos.splice(index, 1);
+  } else if (combo !== null) {
+    combos.unshift(combo);
   }
-  // no duplicates found
-  return true;
+
+  chrome.storage.local.set({ 'extension-settings': settings }, () => {
+    loadSettings(() => renderSection(section));
+  });
 }
 
-function areArraysEqual(a, b) {
-  if (a === b) return true;
-  if (a == null || b == null) return false;
-  if (a.length !== b.length) return false;
+/* ================================================================== *
+ * Boot
+ * ================================================================== */
 
-  for (var i = 0; i < a.length; ++i) {
-    if (a[i] !== b[i]) return false;
-  }
-  return true;
+function init() {
+  loadSettings(populateFields);
 }
 
-getSettings(function () {
-  // once the DOM is ready file in all settings info
-  let stateCheck = setInterval(() => {
-    if (document.readyState === "complete") {
-      clearInterval(stateCheck);
-      populateFields();
-    }
-  }, 100);
-});
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init, { once: true });
+} else {
+  init();
+}

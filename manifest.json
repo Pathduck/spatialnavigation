@@ -1,4 +1,20 @@
 {
+  "manifest_version": 3,
+  "name": "Spatial Navigation",
+  "short_name": "spatial-navigation",
+  "description": "Smart Spatial Navigation extension with key map to links. Binds WASD and Q/E/F keys.",
+  "version": "0.5",
+
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "spatial-navigation@mikeulus",
+      "strict_min_version": "121.0"
+    }
+  },
+
+  "permissions": ["storage"],
+  "host_permissions": ["<all_urls>"],
+
   "content_scripts": [
     {
       "js": ["js/spatial-navigation.js"],
@@ -6,20 +22,20 @@
       "run_at": "document_end"
     }
   ],
+
   "background": {
-    "service_worker": "js/background.js"
+    "service_worker": "js/background.js",
+    "scripts": ["js/background.js"]
   },
+
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+
   "icons": {
     "16": "img/icon16.png",
     "32": "img/icon32.png",
     "64": "img/icon64.png"
-  },
-  "description": "Smart Spatial Navigation extension with key map to links. Binds WASD and Q/E/F keys.",
-  "manifest_version": 3,
-  "name": "Spatial Navigation",
-  "permissions": ["storage"],
-  "host_permissions": ["<all_urls>"],
-  "short_name": "spatial-navigation",
-  "version": "0.5",
-  "options_page": "options.html"
+  }
 }

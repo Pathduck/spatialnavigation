@@ -1,46 +1,42 @@
+/**
+ * Background script — seeds default hotkeys.
+ *
+ * Runs as a Chrome service worker and a Firefox event page unchanged: no DOM
+ * access, and the listener registers at top level as non-persistent
+ * backgrounds require.
+ */
+
+const DEFAULT_HOTKEYS = {
+  navUp: [["w"]],
+  navLeft: [["a"]],
+  navDown: [["s"]],
+  navRight: [["d"]],
+  expand: [["e"]],
+  contract: [["shift", "e"]],
+  quit: [["q"]],
+  click: [["f"], ["enter"]],
+  shiftClick: [["shift", "enter"], ["shift", "f"]],
+  controlClick: [["control", "enter"], ["control", "f"]],
+  disableKeys: [["control", "shift", "x"]],
+};
+
+// Callbacks, not promises: in Firefox the chrome.* namespace is callback-only.
+// Promises live on browser.*, which Chrome doesn't have.
 chrome.runtime.onInstalled.addListener(function () {
-  let settings = {
-    hotkeys: {
-      codes: {
-        navUp: [["w"]],
-        navLeft: [["a"]],
-        navDown: [["s"]],
-        navRight: [["d"]],
-        expand: [["e"]],
-        contract: [["shift", "e"]],
-        quit: [["q"]],
-        click: [["f"], ["enter"]],
-        shiftClick: [["shift", "enter"], ["shift", "f"]],
-        controlClick: [["control", "enter"], ["control", "f"]],
-        disableKeys: [["control", "shift", "x"]],
-      },
-    },
-  };
+  chrome.storage.local.get(["extension-settings"], function (stored) {
+    let settings = stored["extension-settings"] || {};
+    let hotkeys = settings.hotkeys || {};
+    let codes = hotkeys.codes || {};
 
-  chrome.storage.local.set({ "extension-settings": settings }, function () {
-    console.log("Initial setting set...");
+    // onInstalled also fires on UPDATE. Merging rather than overwriting means a
+    // version bump gives new actions their defaults without discarding
+    // bindings the user configured.
+    let merged = { ...DEFAULT_HOTKEYS, ...codes };
+
+    settings.hotkeys = { ...hotkeys, codes: merged };
+
+    chrome.storage.local.set({ "extension-settings": settings }, function () {
+      console.log("Settings checked...");
+    });
   });
-});
-
-chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
-  if (msg.from === "content" && msg.subject === "changeIcon") {
-    // let canvas = document.getElementById("icon-making-canvas");
-    // if (!canvas) {
-    //   canvas = document.createElement("CANVAS");
-    //   canvas.id = "icon-making-canvas";
-    //   canvas.width = canvas.height = 16;
-    // }
-    // let ctx = canvas.getContext("2d");
-    // ctx.beginPath();
-    // ctx.rect(0, 0, 16, 16);
-    // ctx.fillStyle = "red";
-    // ctx.fill();
-    // ctx.fillStyle = "white";
-    // ctx.textAlign = "center";
-    // ctx.textBaseline = "middle";
-    // fitTextOnCanvas(ctx, msg.speed, "Roboto Condensed", 9, canvas.width);
-    // let imgData = ctx.getImageData(0, 0, 16, 16);
-    // chrome.pageAction.setIcon({ imageData: imgData, tabId: sender.tab.id });
-  }
-  return Promise.resolve("Dummy response to keep the console quiet");
 });
